@@ -1,0 +1,459 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+ Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Antic+Slab" rel="stylesheet">
+</head>
+
+<body>
+    <div id="scoreA">Snake A: 0</div>
+    <div id="scoreB">Snake B: 0</div>
+
+
+    <canvas id="gameCanvas" width="1000" height="500"></canvas>
+    <style>
+        #gameCanvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        #scoreA {
+            text-align: center;
+            font-size: 14px;
+            font-family: 'Antic Slab', serif;
+        }
+        #scoreB {
+            text-align: center;
+            font-size: 14px;
+            font-family: 'Antic Slab', serif;
+        }
+    </style>
+</body>
+<script>
+    const gameCanvas = document.getElementById("gameCanvas");
+
+
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+function sigmoid(t) {
+    return 1/(1+Math.exp(-t));
+}
+
+
+    const gameSpeed = 20;
+    const CANVAS_BORDER_COLOUR = 'black';
+    const CANVAS_BACKGROUND_COLOUR = "white";
+    let snakeColor = getRandomColor();
+    let snakeBorderColor = getRandomColor();
+    const foodColor = 'yellow';
+    const foodBorderColor = 'red';
+    let snakeA = [{
+            x: 150,
+            y: 150
+        }, {
+            x: 140,
+            y: 150
+        }, {
+            x: 130,
+            y: 150
+        }, {
+            x: 120,
+            y: 150
+        }, {
+            x: 110,
+            y: 150
+        }];
+
+
+
+    let snakeB = [{
+            x: 150,
+            y: 150
+        }, {
+            x: 140,
+            y: 150
+        }, {
+            x: 130,
+            y: 150
+        }, {
+            x: 120,
+            y: 150
+        }, {
+            x: 110,
+            y: 150
+        }];
+
+//Just putting this here for future reference
+let headA = {
+   x: snakeA[0].x,
+   y: snakeA[0].y
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // The user's score
+    let scoreA = 0;
+    let scoreB = 0;
+
+
+    // When set to true the snake is changing direction
+    let changingDirectionA = false;
+    let changingDirectionB = false;
+
+    // Food x-coordinate
+    let foodX;
+    // Food y-coordinate
+    let foodY;
+    // Horizontal velocity
+    let dxA = 10;
+    // Vertical velocity
+    let dyA = 0;
+    // Horizontal velocity
+    let dxB = 10;
+    // Vertical velocity
+    let dyB = 0;
+    // Get the canvas element
+    // Return a two dimensional drawing context
+    const ctx = gameCanvas.getContext("2d");
+    // Start game
+    main();
+    // Create the first food location
+    createFood();
+    // Call changeDirection whenever a key is pressed
+    document.addEventListener("keydown", changeDirection);
+document.body.addEventListener("keyup",false);
+    /**
+     * Main function of the game
+     * called repeatedly to advance the game
+     */
+    function main() {
+            // If the game ended return early to stop game
+            if (didGameEnd()) return;
+                changingDirectionA = false;
+                changingDirectionB = false;
+                clearCanvas();
+                let headA = {
+                  x: snakeA[0].x,
+                  y: snakeA[0].y
+                };
+
+
+
+
+                drawFood();
+                advanceSnake(snakeA, dxA, dyA);
+                advanceSnake(snakeB, dxB, dyB);
+                scoreAscore();
+                scoreBscore();
+                drawSnake(snakeA);
+                drawSnake(snakeB);
+                // Call game again
+            setTimeout(function(){
+              requestAnimationFrame(main);
+            }, 1000/gameSpeed);
+        }
+        /**
+         * Change the background colour of the canvas to CANVAS_BACKGROUND_COLOUR and
+         * draw a border around it
+         */
+    function clearCanvas() {
+            // Select the colour to fill the drawing
+            ctx.fillStyle = CANVAS_BACKGROUND_COLOUR;
+            // Select the colour for the border of the canvas
+            ctx.strokestyle = CANVAS_BORDER_COLOUR;
+            // Draw a "filled" rectangle to cover the entire canvas
+            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            // Draw a "border" around the entire canvas
+            ctx.strokeRect(0, 0, gameCanvas.width, gameCanvas.height);
+        }
+        /**
+         * Draw the food on the canvas
+         */
+    function drawFood() {
+            ctx.fillStyle = foodColor;
+            ctx.strokestyle = foodBorderColor;
+            ctx.fillRect(foodX, foodY, 10, 10);
+            ctx.strokeRect(foodX, foodY, 10, 10);
+        }
+        /**
+         * Advances the snake by changing the x-coordinates of its parts
+         * according to the horizontal velocity and the y-coordinates of its parts
+         * according to the vertical veolocity
+         */
+    function advanceSnake(snake, dx, dy) {
+            // Create the new Snake's head
+
+            const head = {
+                x: snake[0].x + dx,
+                y: snake[0].y + dy
+            };
+
+            // Add the new head to the beginning of snake body
+            snake.unshift(head);
+
+        }
+
+
+
+function scoreAscore(){
+            const didEatFood = snakeA[0].x === foodX && snakeA[0].y === foodY;
+            if (didEatFood) {
+                // Increase score
+                scoreA += 1;
+                document.getElementById("scoreA").innerHTML = "Snake A: " + scoreA;
+                snakeColor = getRandomColor();
+                snakeBorderColor = getRandomColor();
+                // Generate new food location
+                createFood();
+            } else {
+                // Remove the last part of snake body
+                snakeA.pop();
+            }
+ }
+
+function scoreBscore(){
+            const didEatFood = snakeB[0].x === foodX && snakeB[0].y === foodY;
+            if (didEatFood) {
+                // Increase score
+                scoreB += 1;
+                document.getElementById("scoreB").innerHTML = "Snake B: " + scoreB;
+                snakeColor = getRandomColor();
+                snakeBorderColor = getRandomColor();
+                // Generate new food location
+                createFood();
+            } else {
+                // Remove the last part of snake body
+                snakeB.pop();
+            }
+ }
+
+
+
+        /**
+         * Returns true if the head of the snake touched another part of the game
+         * or any of the walls
+         */
+    function didGameEnd() {
+            for (let i = 4; i < snakeA.length; i++) {
+                if (snakeA[i].x === snakeA[0].x && snakeA[i].y === snakeA[0].y) return true
+            }
+            for (let x = 1; x < snakeA.length; x++){
+                if (snakeA[x].x === snakeB[0].x && snakeA[x].y === snakeB[0].y) return true
+            }
+
+
+
+            for (let i = 4; i < snakeB.length; i++) {
+                if (snakeB[i].x === snakeB[0].x && snakeB[i].y === snakeB[0].y) return true
+            }
+
+            for (let i = 1; i < snakeB.length; i++) {
+               if (snakeB[i].x === snakeA[0].x && snakeB[i].y === snakeA[0].y) return true
+            }
+            const hitLeftWallA = snakeA[0].x < 0;
+            const hitRightWallA = snakeA[0].x > gameCanvas.width - 10;
+            const hitToptWallA = snakeA[0].y < 0;
+            const hitBottomWallA = snakeA[0].y > gameCanvas.height - 10;
+
+            const hitLeftWallB = snakeB[0].x < 0;
+            const hitRightWallB = snakeB[0].x > gameCanvas.width - 10;
+            const hitToptWallB = snakeB[0].y < 0;
+            const hitBottomWallB = snakeB[0].y > gameCanvas.height - 10;
+
+
+            return hitLeftWallA || hitRightWallA || hitToptWallA || hitBottomWallA || hitLeftWallB || hitRightWallB || hitToptWallB || hitBottomWallB
+        }
+        /**
+         * Generates a random number that is a multiple of 10 given a minumum
+         * and a maximum number
+         * @param { number } min - The minimum number the random number can be
+         * @param { number } max - The maximum number the random number can be
+         */
+    function randomTen(min, max) {
+            return Math.round((Math.random() * (max - min) + min) / 10) * 10;
+        }
+        /**
+         * Creates random set of coordinates for the snake food.
+         */
+    function createFood() {
+            // Generate a random number the food x-coordinate
+            foodX = randomTen(0, gameCanvas.width - 10);
+            // Generate a random number for the food y-coordinate
+            foodY = randomTen(0, gameCanvas.height - 10);
+            // if the new food location is where the snake currently is, generate a new food location
+            snakeA.forEach(function isFoodOnSnake(part) {
+                const foodIsoNsnake = part.x == foodX && part.y == foodY;
+                if (foodIsoNsnake) createFood();
+            });
+        }
+        /**
+         * Draws the snake on the canvas
+         */
+    function drawSnake(snake) {
+            // loop through the snake parts drawing each part on the canvas
+            snake.forEach(drawSnakePart)
+        }
+        /**
+         * Draws a part of the snake on the canvas
+         * @param { object } snakePart - The coordinates where the part should be drawn
+         */
+    function drawSnakePart(snakePart) {
+            // Set the colour of the snake part
+            ctx.fillStyle = snakeColor;
+            // Set the border colour of the snake part
+            ctx.strokestyle = snakeBorderColor;
+            // Draw a "filled" rectangle to represent the snake part at the coordinates
+            // the part is located
+            ctx.fillRect(snakePart.x, snakePart.y, 10, 10);
+            // Draw a border around the snake part
+            ctx.strokeRect(snakePart.x, snakePart.y, 10, 10);
+        }
+        /**
+         * Changes the vertical and horizontal velocity of the snake according to the
+         * key that was pressed.
+         * The direction cannot be switched to the opposite direction, to prevent the snake
+         * from reversing
+         * For example if the the direction is 'right' it cannot become 'left'
+         * @param { object } event - The keydown event
+         */
+function changeDirection(event) {
+        const leftKeyA = 37;
+        const rightKeyA = 39;
+        const upKeyA = 38;
+        const downKeyA = 40;
+
+        const leftKeyB = 65;
+        const rightKeyB = 68;
+        const upKeyB = 87;
+        const downKeyB = 83;
+
+
+        /**
+         * Prevent the snake from reversing
+         * Example scenario:
+         * Snake is moving to the right. User presses down and immediately left
+         * and the snake immediately changes direction without taking a step down first
+         */
+        if (changingDirectionA) return;
+        changingDirectionA = true;
+        const keyPressed = event.keyCode;
+        const goingUpA = dyA === -10;
+        const goingDownA = dyA === 10;
+        const goingRightA = dxA === 10;
+        const goingLeftA = dxA === -10;
+
+        const goingUpB = dyB === -10;
+        const goingDownB = dyB === 10;
+        const goingRightB = dxB === 10;
+        const goingLeftB = dxB === -10;
+
+
+switch (keyPressed){
+  case leftKeyA:
+  if (!goingRightA){
+    dxA = -10;
+    dyA = 0;
+  }
+  break;
+
+  case upKeyA:
+  if (!goingDownA){
+    dxA = 0;
+    dyA = -10;
+  }
+  break;
+
+  case rightKeyA:
+  if (!goingLeftA){
+    dxA = 10;
+    dyA = 0;
+  }
+  break;
+
+  case downKeyA:
+  if (!goingUpA){
+    dxA = 0;
+    dyA = 10;
+  }
+  break;
+
+}
+
+
+
+
+
+switch (keyPressed){
+  case leftKeyB:
+  if (!goingRightB){
+    dxB = -10;
+    dyB = 0;
+  }
+  break;
+
+  case upKeyB:
+  if (!goingDownB){
+    dxB = 0;
+    dyB = -10;
+  }
+  break;
+
+  case rightKeyB:
+  if (!goingLeftB){
+    dxB = 10;
+    dyB = 0;
+  }
+  break;
+
+  case downKeyB:
+  if (!goingUpB){
+    dxB = 0;
+    dyB = 10;
+  }
+  break;
+
+}
+
+
+
+
+
+
+
+}
+
+
+
+
+
+</script>
+
+</html>
