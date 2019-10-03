@@ -84,19 +84,19 @@ function sigmoid(t) {
 
     let snakeB = [{
             x: 150,
-            y: 150
+            y: 450
         }, {
             x: 140,
-            y: 150
+            y: 450
         }, {
             x: 130,
-            y: 150
+            y: 450
         }, {
             x: 120,
-            y: 150
+            y: 450
         }, {
             x: 110,
-            y: 150
+            y: 450
         }];
 
 //Just putting this here for future reference
@@ -163,6 +163,10 @@ document.body.addEventListener("keyup",false);
                 let headA = {
                   x: snakeA[0].x,
                   y: snakeA[0].y
+                };
+                let headB = {
+                  x: snakeB[0].x,
+                  y: snakeB[0].y
                 };
 
 
@@ -327,7 +331,7 @@ function scoreBscore(){
          */
     function drawSnakePart(snakePart) {
             // Set the colour of the snake part
-            ctx.fillStyle = snakeColor;
+            ctx.fillStyle = getRandomColor();
             // Set the border colour of the snake part
             ctx.strokestyle = snakeBorderColor;
             // Draw a "filled" rectangle to represent the snake part at the coordinates
